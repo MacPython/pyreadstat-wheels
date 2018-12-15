@@ -354,12 +354,12 @@ class Mingw64CCompiler (CygwinCCompiler):
         else:
             entry_point = ''
 
-        self.linker_dll='x86_64-w64-mingw32-gcc'
+        self.linker_dll='x86_64-pc-msys-gcc'
 
-        self.set_executables(compiler='x86_64-w64-mingw32-gcc -mno-cygwin -O -Wall',
-                             compiler_so='x86_64-w64-mingw32-gcc -mno-cygwin -mdll -O -Wall',
-                             compiler_cxx='x86_64-w64-mingw32-g++ -mno-cygwin -O -Wall',
-                             linker_exe='x86_64-w64-mingw32-gcc -mno-cygwin',
+        self.set_executables(compiler='x86_64-pc-msys-gcc -mno-cygwin -O -Wall',
+                             compiler_so='x86_64-pc-msys-gcc -mno-cygwin -mdll -O -Wall',
+                             compiler_cxx='x86_64-pc-msys-g++ -mno-cygwin -O -Wall',
+                             linker_exe='x86_64-pc-msys-gcc -mno-cygwin',
                              linker_so='%s -mno-cygwin %s %s'
                                         % (self.linker_dll, shared_option,
                                            entry_point))
