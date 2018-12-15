@@ -25,8 +25,8 @@ The wheel-building repository:
   (Manylinux1_).  ``delocate`` and ``auditwheel`` copy the required dynamic
   libraries into the wheel and relinks the extension modules against the
   copied libraries;
-* uploads the built wheels to http://wheels.scipy.org (a Rackspace container
-  kindly donated by Rackspace to scikit-learn).
+* uploads the built wheels to a Rackspace container kindly donated by Rackspace
+  to scikit-learn.
 
 The resulting wheels are therefore self-contained and do not need any external
 dynamic libraries apart from those provided as standard by OSX / Linux as
@@ -34,9 +34,9 @@ defined by the manylinux1 standard.
 
 The ``.travis.yml`` file in this repository has a line containing the API key
 for the Rackspace container encrypted with an RSA key that is unique to the
-repository - see http://docs.travis-ci.com/user/encryption-keys.  This
+repository - see https://docs.travis-ci.com/user/encryption-keys.  This
 encrypted key gives the travis build permission to upload to the Rackspace
-directory pointed to by http://wheels.scipy.org.
+containers we use to house the uploads.
 
 Triggering a build
 ==================
@@ -67,17 +67,26 @@ The ``pyreadstat-wheels`` repository will build the commit specified in the
 This can be any naming of a commit, including branch name, tag name or commit
 hash.
 
+Note: when making a release, it's best to only push the commit (not the tag) of
+the release to the ``pyreadstat`` repo, then change ``BUILD_COMMIT`` to the
+commit hash, and only after all wheel builds completed successfully push the
+release tag to the repo.  This avoids having to move or delete the tag in case
+of an unexpected build/test issue.
+
 Uploading the built wheels to pypi
 ==================================
 
-Be careful, http://wheels.scipy.org points to a container on a distributed
-content delivery network.  It can take up to 15 minutes for the new wheel file
-to get updated into the container at http://wheels.scipy.org.
+* release container visible at
+  https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com
 
-The same contents appear at
-https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com;
-you might prefer this address because it is https.
+Be careful, these links point to containers on a distributed content delivery
+network.  It can take up to 15 minutes for the new wheel file to get updated
+into the containers at the links above.
 
+When the wheels are updated, you can download them to your machine manually,
+and then upload them manually to pypi, or by using twine_.  You can also use a
+script for doing this, housed at :
+https://github.com/MacPython/terryfy/blob/master/wheel-uploader
 When the wheels are updated, you can download them to your machine manually,
 and then upload them manually to pypi, or by using twine_.  You can also use a
 script for doing this, housed at :
@@ -90,16 +99,12 @@ You will typically have a directory on your machine where you store wheels,
 called a `wheelhouse`.   The typical call for `wheel-uploader` would then
 be something like::
 
-    VERSION=0.4.0
+    VERSION=0.2.0
     CDN_URL=https://3f23b170c54c2533c070-1c8a9b3114517dc5fe17b7c3f8c63a43.ssl.cf2.rackcdn.com
-    wheel-uploader -r warehouse -u $CDN_URL -s -v -w ~/wheelhouse -t macosx pyreadstat $VERSION
-    wheel-uploader -r warehouse -u $CDN_URL -s -v -w ~/wheelhouse -t manylinux1 pyreadstat $VERSION
-    wheel-uploader -r warehouse -u $CDN_URL -s -v -w ~/wheelhouse -t win pyreadstat $VERSION
+    wheel-uploader -u $CDN_URL -s -v -w ~/wheelhouse -t all pyreadstat $VERSION
 
 where:
 
-* ``-r warehouse`` uses the upcoming Warehouse PyPI server (it is more
-  reliable than the current PyPI service for uploads);
 * ``-u`` gives the URL from which to fetch the wheels, here the https address,
   for some extra security;
 * ``-s`` causes twine to sign the wheels with your GPG key;
@@ -108,28 +113,22 @@ where:
   ``~/wheelhouse``.
 
 ``pyreadstat`` is the root name of the wheel(s) to download / upload, and
-``0.4.0`` is the version to download / upload.
+``0.2.0`` is the version to download / upload.
 
-In order to use the Warehouse PyPI server, you will need something like this
+In order to upload the wheels, you will need something like this
 in your ``~/.pypirc`` file::
 
     [distutils]
     index-servers =
         pypi
-        warehouse
 
     [pypi]
     username:your_user_name
     password:your_password
 
-    [warehouse]
-    repository: https://upload.pypi.io/legacy/
-    username: your_user_name
-    password: your_password
-
-So, in this case, ``wheel-uploader`` will download all wheels starting with
-``pyreadstat-0.4.0-`` from http://wheels.scipy.org to ``~/wheelhouse``,
-then upload them to PyPI.
+So, in this case, `wheel-uploader` will download all wheels starting with
+`pyreadstat-0.2.0-` from the URL in ``$CDN_URL`` above to ``~/wheelhouse``, then
+upload them to PyPI.
 
 Of course, you will need permissions to upload to PyPI, for this to work.
 
