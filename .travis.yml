@@ -1,7 +1,7 @@
 env:
   global:
       - REPO_DIR="pyreadstat"
-      - BUILD_COMMIT=c7210d13ee409274dc3803093903d5049e32fc0e
+      - BUILD_COMMIT=b8b8131c634644dc3ff428091aedf619c57c1451
       - PLAT=x86_64
       - UNICODE_WIDTH=32
       - WHEELHOUSE_UPLOADER_USERNAME=travis-worker
