@@ -1,62 +1,51 @@
-# vim ft=yaml
-# CI on Windows via appveyor
-# Largely from:
-# https://github.com/ogrisel/python-appveyor-demo/blob/master/appveyor.yml
-#
-# Builds version specified in BUILD_COMMIT variable
-# To chose version to build, edit value of BUILD_COMMIT
-
-os: Visual Studio 2015
-
 environment:
-    global:
+
+  global:
       # Remember to edit .travis.yml too
-      BUILD_COMMIT: 419b992
+      BUILD_COMMIT: f99951f07baea3960ae7d642c0adfe5ddd6f0f91
       WHEELHOUSE_UPLOADER_USERNAME: travis-worker
       WHEELHOUSE_UPLOADER_SECRET:
         secure:
             9s0gdDGnNnTt7hvyNpn0/ZzOMGPdwPp2SewFTfGzYk7uI+rdAN9rFq2D1gAP4NQh
 
-    matrix:
-    - PYTHON: C:\Python37
-    - PYTHON: C:\Python37-x64
-    - PYTHON: C:\Python36
-    - PYTHON: C:\Python36-x64
-    - PYTHON: C:\Python35
-    - PYTHON: C:\Python35-x64
-    - PYTHON: C:\Python27
-    - PYTHON: C:\Python27-x64
+  matrix:
+    - PYTHON_VERSION: "3.5"
+      CONDAPATH: 'C:\Miniconda35'
+    - PYTHON_VERSION: "3.6"
+      CONDAPATH: 'C:\Miniconda36'
+    - PYTHON_VERSION: "3.7"
+      CONDAPATH: 'C:\Miniconda37'
+
+  platform:
+    - x64
+    - x86
 
 install:
-  - cmd: echo "Using cmd"
-
-  # Prepend newly installed Python to the PATH of this build (this cannot be
-  # done from inside the powershell script as it would require to restart
-  # the parent CMD process).
-  - SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
-
-  # Fix MSVC builds for 64-bit Python
-  # See
-  # http://stackoverflow.com/questions/32091593/cannot-install-windows-sdk-7-1-on-windows-10
-  - echo "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64 > "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\amd64/vcvars64.bat"
-
+  - git submodule update --init
+  # activate conda base environment
+  - if "%PLATFORM%" == "x64" set CONDAPATH=%CONDAPATH%-x64
+  - call %CONDAPATH%\Scripts\activate
   # Check that we have the expected version and architecture for Python
   - python --version
   - python -c "import struct; print(struct.calcsize('P') * 8)"
-
-  - python -m pip install --upgrade pip
+  # prepare environment with conda
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda install -q setuptools pandas pip libpython cython
+  # mingw64 toolchain to compile python extensions
+  - conda install -q -c msys2 m2w64-toolchain
   # Pin wheel to 0.26 to avoid Windows ABI tag for built wheel
-  - pip install wheel==0.26
-  - git submodule update --init
-  # Dependencies for package
-  - pip install Cython
-
+  - conda install -q wheel==0.26
+  
 build_script:
   # Build and install the wheel
   - cd pyreadstat
   - git fetch origin
   - git checkout %BUILD_COMMIT%
-  - python setup.py bdist_wheel
+  # set mingw32 as compiler and produce the wheel
+  - python.exe setup.py config --compiler=mingw32
+  - python.exe setup.py bdist_wheel 
+  - ps: "ls dist"
   - ps: |
       # Upload artifact to Appveyor immediately after build
       ls dist -r | Foreach-Object {
