@@ -2,7 +2,7 @@ environment:
 
   global:
       # Remember to edit .travis.yml too
-      BUILD_COMMIT: f71cdf1b0a278eb40a0c7b868cb3db51e9cb7954
+      BUILD_COMMIT: cc90e9ae992464dce9394e95a63aabe44b8474a0
       WHEELHOUSE_UPLOADER_USERNAME: travis-worker
       WHEELHOUSE_UPLOADER_SECRET:
         secure:
@@ -41,7 +41,7 @@ build_script:
   - git fetch origin
   - git checkout %BUILD_COMMIT%
   # clean dist dir just in case there is something in there
-  - del /Q dist\*.*
+  #- del /Q dist\*.*
   # set mingw32 as compiler and produce the wheel
   - python.exe setup.py config --compiler=mingw32
   - python.exe setup.py bdist_wheel 
