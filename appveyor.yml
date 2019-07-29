@@ -16,9 +16,9 @@ environment:
     - PYTHON_VERSION: "3.7"
       CONDAPATH: 'C:\Miniconda37'
 
-  platform:
-    - x64
-    - x86
+platform:
+  - x64
+  - x86
 
 install:
   - git submodule update --init
