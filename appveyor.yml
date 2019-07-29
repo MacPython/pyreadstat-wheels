@@ -15,10 +15,17 @@ environment:
       CONDAPATH: 'C:\Miniconda36'
     - PYTHON_VERSION: "3.7"
       CONDAPATH: 'C:\Miniconda37'
+    - PYTHON_VERSION: "2.7"
+      CONDAPATH: 'C:\Miniconda'
 
 platform:
   - x64
   - x86
+
+matrix:
+  fast_finish: false
+  allow_failures:
+    - PYTHON_VERSION: "2.7"
 
 install:
   - git submodule update --init
@@ -31,17 +38,16 @@ install:
   # prepare environment with conda
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda install -q setuptools pandas pip libpython cython
+  - conda install -q setuptools pandas pip libpython cython wheel
   # mingw64 toolchain to compile python extensions
   - conda install -q -c msys2 m2w64-toolchain
-  # Pin wheel to 0.26 to avoid Windows ABI tag for built wheel
-  - conda install -q wheel==0.26
   
 build_script:
   # Build and install the wheel
   - cd pyreadstat
   - git fetch origin
   - git checkout %BUILD_COMMIT%
+  - del /Q dist\*.*
   # set mingw32 as compiler and produce the wheel
   - python.exe setup.py config --compiler=mingw32
   - python.exe setup.py bdist_wheel 
@@ -52,16 +58,11 @@ build_script:
           appveyor PushArtifact $_.FullName
           pip install $_.FullName
       }
-  - cd dist
-  - pip install --pre --no-index -f . pyreadstat
-  - cd ..
+  - pip install --pre --no-index --find-links dist/ pyreadstat
 
 test_script:
   # Run some tests
-  - mkdir tmp
-  - cd tmp
-  - python ../pyreadstat/tests/test_basic.py
-  - cd ..
+  - python.exe tests\test_basic.py
 
 after_test:
   # If tests are successful, create binary packages for the project.
