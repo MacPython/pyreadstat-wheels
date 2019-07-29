@@ -2,7 +2,7 @@ environment:
 
   global:
       # Remember to edit .travis.yml too
-      BUILD_COMMIT: 69f56b2fe8e2b0ae8be1e1e4fd8626b4de13d2dd
+      BUILD_COMMIT: f71cdf1b0a278eb40a0c7b868cb3db51e9cb7954
       WHEELHOUSE_UPLOADER_USERNAME: travis-worker
       WHEELHOUSE_UPLOADER_SECRET:
         secure:
@@ -15,8 +15,6 @@ environment:
       CONDAPATH: 'C:\Miniconda36'
     - PYTHON_VERSION: "3.7"
       CONDAPATH: 'C:\Miniconda37'
-    #- PYTHON_VERSION: "2.7"
-    #  CONDAPATH: 'C:\Miniconda'
 
 platform:
   - x64
@@ -42,6 +40,7 @@ build_script:
   - cd pyreadstat
   - git fetch origin
   - git checkout %BUILD_COMMIT%
+  # clean dist dir just in case there is something in there
   - del /Q dist\*.*
   # set mingw32 as compiler and produce the wheel
   - python.exe setup.py config --compiler=mingw32
@@ -56,9 +55,7 @@ build_script:
   - pip install --pre --no-index --find-links dist/ pyreadstat
 
 test_script:
-  # Run some tests, not for python 2.7 as they would fail
   python.exe tests\test_basic.py
-  #- if "%PYTHON_VERSION%" != "2.7" python.exe tests\test_basic.py
 
 after_test:
   # If tests are successful, create binary packages for the project.
