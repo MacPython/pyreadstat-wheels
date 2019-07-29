@@ -2,7 +2,7 @@ environment:
 
   global:
       # Remember to edit .travis.yml too
-      BUILD_COMMIT: f99951f07baea3960ae7d642c0adfe5ddd6f0f91
+      BUILD_COMMIT: 69f56b2fe8e2b0ae8be1e1e4fd8626b4de13d2dd
       WHEELHOUSE_UPLOADER_USERNAME: travis-worker
       WHEELHOUSE_UPLOADER_SECRET:
         secure:
