@@ -22,11 +22,6 @@ platform:
   - x64
   - x86
 
-matrix:
-  fast_finish: false
-  allow_failures:
-    - PYTHON_VERSION: "2.7"
-
 install:
   - git submodule update --init
   # activate conda base environment
@@ -61,8 +56,8 @@ build_script:
   - pip install --pre --no-index --find-links dist/ pyreadstat
 
 test_script:
-  # Run some tests
-  - python.exe tests\test_basic.py
+  # Run some tests, not for python 2.7 as they would fail
+  - if "%PYTHON_VERSION%" != "2.7" python.exe tests\test_basic.py
 
 after_test:
   # If tests are successful, create binary packages for the project.
